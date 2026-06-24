@@ -25,7 +25,7 @@ class LensPlugin implements PluginInterface, EventSubscriberInterface
 
     public function installHook(Event $event): void
     {
-        // Only for dev installs — never on `composer install --no-dev` (CI/production).
+        // Only for dev installs, never on `composer install --no-dev` (CI/production).
         if (! $event->isDevMode()) {
             return;
         }
@@ -52,7 +52,7 @@ class LensPlugin implements PluginInterface, EventSubscriberInterface
         if (is_file($hookPath)) {
             $existing = (string) @file_get_contents($hookPath);
             if (str_contains($existing, 'lens:check')) {
-                return; // already installed — idempotent
+                return; // already installed, idempotent
             }
 
             // Never clobber a foreign pre-commit hook.
@@ -64,7 +64,7 @@ class LensPlugin implements PluginInterface, EventSubscriberInterface
         }
 
         $script = "#!/bin/sh\n"
-            . "# Lens — block commits that contain leftover lens() debug calls\n"
+            . "# Lens, block commits that contain leftover lens() debug calls\n"
             . "php artisan lens:check --staged\n";
 
         if (@file_put_contents($hookPath, $script) !== false) {

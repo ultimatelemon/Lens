@@ -42,7 +42,7 @@ class LensCheckCommand extends Command
 
         $this->error('Found ' . count($hits) . ' leftover lens() call(s):');
         foreach ($hits as [$file, $line, $code]) {
-            $this->line("  <fg=yellow>{$file}:{$line}</> — {$code}");
+            $this->line("  <fg=yellow>{$file}:{$line}</>, {$code}");
         }
         $this->newLine();
         $this->warn('Remove these debug calls before committing.');

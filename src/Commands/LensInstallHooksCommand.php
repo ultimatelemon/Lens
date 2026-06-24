@@ -14,7 +14,7 @@ class LensInstallHooksCommand extends Command
     {
         $gitDir = base_path('.git');
         if (! is_dir($gitDir)) {
-            $this->error('No .git directory found in ' . base_path() . ' — is this a git repository?');
+            $this->error('No .git directory found in ' . base_path() . ', is this a git repository?');
             return self::FAILURE;
         }
 
@@ -38,7 +38,7 @@ class LensInstallHooksCommand extends Command
         }
 
         $script = "#!/bin/sh\n"
-            . "# Lens — block commits that contain leftover lens() debug calls\n"
+            . "# Lens, block commits that contain leftover lens() debug calls\n"
             . "php artisan lens:check --staged\n";
 
         file_put_contents($hookPath, $script);

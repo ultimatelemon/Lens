@@ -21,12 +21,12 @@ return [
 
     /*
      | Stream every database query to Lens. Handy while debugging, noisy if
-     | left on permanently — toggle per environment.
+     | left on permanently, toggle per environment.
      */
     'queries' => env('LENS_QUERIES', false),
 
     /*
-     | Extra Laravel streams. Toggle per environment — handy while debugging,
+     | Extra Laravel streams. Toggle per environment, handy while debugging,
      | noisy if left on permanently.
      */
     'mails'  => env('LENS_MAILS', false),

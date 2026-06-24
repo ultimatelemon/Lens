@@ -26,7 +26,7 @@ class LensTestCommand extends Command
             ->color('green');
 
         $this->info("Sent a test payload to Lens ({$host}:{$port}).");
-        $this->line('Open the Lens app — you should see a green "artisan lens:test" item.');
+        $this->line('Open the Lens app, you should see a green "artisan lens:test" item.');
 
         return self::SUCCESS;
     }

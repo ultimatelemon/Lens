@@ -39,6 +39,12 @@ class LensServiceProvider extends ServiceProvider
             if ($config['notifications'] ?? false) Lens::showNotifications();
         }
 
+        if (class_exists(\Illuminate\Support\Facades\Blade::class)) {
+            \Illuminate\Support\Facades\Blade::directive('lens', static function ($expression) {
+                return "<?php lens({$expression}); ?>";
+            });
+        }
+
         if ($this->app->runningInConsole()) {
             $this->commands([
                 Commands\LensCheckCommand::class,

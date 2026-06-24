@@ -2,7 +2,7 @@
 
 Send debug payloads from your PHP or Laravel project straight to the **Lens desktop app**.
 Instead of polluting your response with `dd()` or `var_dump()`, use `lens(...)` to send neatly
-rendered data to a separate window — with syntax highlighting, labels, colors and the line it
+rendered data to a separate window, with syntax highlighting, labels, colors and the line it
 came from.
 
 ```php
@@ -14,7 +14,7 @@ lens(['order' => $order, 'total' => $amount]);
 ## Requirements
 
 - PHP 8.0 or higher (with `ext-curl` and `ext-json`)
-- The **Lens desktop app** must be running — it receives and displays the payloads.
+- The **Lens desktop app** must be running, it receives and displays the payloads.
   (Separate application; listens on `127.0.0.1:23600` by default.)
 
 ## Installation
@@ -28,7 +28,7 @@ composer require ultimatelemon/lens --dev
 In Laravel the package is auto-discovered. Nothing else to configure.
 
 > **Note:** because this is a dev dependency, the `lens()` helper does not exist in production
-> (`composer install --no-dev`). So don't leave `lens()` calls in code that ships to production —
+> (`composer install --no-dev`). So don't leave `lens()` calls in code that ships to production -
 > treat it like `dd()`. See [Prevent commits with lens()](#prevent-commits-with-lens).
 
 ## Usage
@@ -50,6 +50,13 @@ lens($order)->label('New order')->color('green');
 ```
 
 Available colors: `red`, `green`, `blue`, `orange`, `purple`, `gray`.
+
+In Blade views you can use the `@lens` directive:
+
+```blade
+@lens($user)
+@lens(['cart' => $cart], 'Checkout')
+```
 
 ## Exceptions
 
@@ -114,7 +121,7 @@ php artisan lens:install-hooks  # install a git pre-commit hook
 
 ### Automatic (recommended)
 
-The package installs the pre-commit hook **by itself** on `composer install`/`update` — but Composer
+The package installs the pre-commit hook **by itself** on `composer install`/`update`, but Composer
 requires your one-time consent for this. Add this to your project's `composer.json`:
 
 ```json
@@ -168,7 +175,7 @@ Simply set:
 LENS_ENABLED=false
 ```
 
-All `lens()` calls then become no-ops — no network traffic, no overhead touching your app.
+All `lens()` calls then become no-ops, no network traffic, no overhead touching your app.
 
 ### Without Laravel (plain PHP)
 
@@ -185,8 +192,8 @@ lens('works without a framework too');
 
 `lens()` builds a JSON payload and makes a short HTTP POST to the Lens desktop app
 (`http://LENS_HOST:LENS_PORT`). If that fails (app not open, timeout) the error is silently
-ignored — debugging should never break your application.
+ignored, debugging should never break your application.
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+MIT, see [LICENSE](LICENSE).

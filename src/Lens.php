@@ -9,6 +9,7 @@ class Lens
     protected static ?bool $enabled = null;
     protected static bool $queriesHooked = false;
     protected static array $hooked = [];
+    protected static $request = null; // null = not computed, false = CLI/none, array = context
 
     protected string $id;
     protected array $values;
@@ -88,7 +89,7 @@ class Lens
             [$reachable, $action] = static::fetchPauseAction($id);
 
             if (! $reachable) {
-                return true; // app closed — don't hang
+                return true; // app closed, don't hang
             }
             if ($action === 'continue') {
                 return true;
@@ -187,7 +188,7 @@ class Lens
 
     protected static function stringifyBody($body): ?string
     {
-        // Only forward string bodies — never consume a stream (that would break sending).
+        // Only forward string bodies, never consume a stream (that would break sending).
         return is_string($body) ? $body : null;
     }
 
@@ -421,6 +422,26 @@ class Lens
         return ['file' => null, 'line' => null];
     }
 
+    protected static function requestContext(): ?array
+    {
+        if (static::$request !== null) {
+            return static::$request === false ? null : static::$request;
+        }
+
+        if (PHP_SAPI === 'cli' || ! isset($_SERVER['REQUEST_METHOD'])) {
+            static::$request = false;
+            return null;
+        }
+
+        static::$request = [
+            'id'     => static::uuid(),
+            'method' => $_SERVER['REQUEST_METHOD'] ?? null,
+            'url'    => $_SERVER['REQUEST_URI'] ?? null,
+        ];
+
+        return static::$request;
+    }
+
     protected static function uuid(): string
     {
         $data = random_bytes(16);
@@ -437,7 +458,12 @@ class Lens
         }
 
         $payload['time'] = $payload['time'] ?? (int) round(microtime(true) * 1000);
-        $payload['meta'] = ['client' => 'php', 'version' => '1.1.0'];
+        $payload['meta'] = ['client' => 'php', 'version' => '1.2.0'];
+
+        $request = static::requestContext();
+        if ($request !== null && ($payload['type'] ?? null) !== 'clear') {
+            $payload['request'] = $request;
+        }
 
         $json = json_encode($payload, JSON_PARTIAL_OUTPUT_ON_ERROR | JSON_UNESCAPED_UNICODE);
         if ($json === false) {
