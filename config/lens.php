@@ -13,4 +13,10 @@ return [
     'host' => env('LENS_HOST', '127.0.0.1'),
     'port' => env('LENS_PORT', 23600),
 
+    /*
+     | Vang Laravel-exceptions automatisch op en stuur ze naar Lens.
+     | Zet op false als je alleen handmatig wilt loggen.
+     */
+    'catch_exceptions' => env('LENS_CATCH_EXCEPTIONS', true),
+
 ];

@@ -20,14 +20,45 @@ class LensServiceProvider extends ServiceProvider
             (int) ($config['port'] ?? 23600)
         );
 
+        $enabled = ! array_key_exists('enabled', $config) || $config['enabled'];
+
         if (array_key_exists('enabled', $config)) {
             $config['enabled'] ? Lens::enable() : Lens::disable();
         }
 
+        if ($enabled && ($config['catch_exceptions'] ?? true)) {
+            $this->registerExceptionHandler();
+        }
+
         if ($this->app->runningInConsole()) {
+            $this->commands([
+                Commands\LensCheckCommand::class,
+                Commands\LensTestCommand::class,
+                Commands\LensInstallHooksCommand::class,
+            ]);
+
             $this->publishes([
                 __DIR__ . '/../config/lens.php' => $this->app->configPath('lens.php'),
             ], 'lens-config');
+        }
+    }
+
+    /**
+     * Haak Lens in op Laravels exception handler, zodat gerapporteerde
+     * exceptions automatisch in de Lens-app verschijnen (zoals Ray).
+     */
+    protected function registerExceptionHandler(): void
+    {
+        try {
+            $handler = $this->app->make(\Illuminate\Contracts\Debug\ExceptionHandler::class);
+
+            if (method_exists($handler, 'reportable')) {
+                $handler->reportable(function (\Throwable $e) {
+                    Lens::exception($e);
+                });
+            }
+        } catch (\Throwable $e) {
+            // Stil negeren: een debug-tool mag de app nooit breken.
         }
     }
 }

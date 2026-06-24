@@ -23,6 +23,11 @@ class Lens
             return;
         }
 
+        if (count($values) === 1 && $values[0] instanceof \Throwable) {
+            static::exception($values[0]);
+            return;
+        }
+
         $this->origin = static::resolveOrigin();
         $this->transmitSelf();
     }
@@ -48,6 +53,52 @@ class Lens
     public static function clear(): void
     {
         static::transmit(['id' => static::uuid(), 'type' => 'clear']);
+    }
+
+    /** Stuur een exception/throwable netjes weergegeven naar Lens. */
+    public static function exception(\Throwable $e): void
+    {
+        static::transmit([
+            'id'        => static::uuid(),
+            'type'      => 'exception',
+            'color'     => 'red',
+            'origin'    => ['file' => $e->getFile(), 'line' => $e->getLine()],
+            'exception' => [
+                'class'   => get_class($e),
+                'message' => $e->getMessage(),
+                'code'    => $e->getCode(),
+                'file'    => $e->getFile(),
+                'line'    => $e->getLine(),
+                'frames'  => static::framesFrom($e),
+            ],
+        ]);
+    }
+
+    protected static function framesFrom(\Throwable $e): array
+    {
+        $frames = [[
+            'file'     => $e->getFile(),
+            'line'     => $e->getLine(),
+            'function' => null,
+            'class'    => null,
+            'type'     => null,
+        ]];
+
+        foreach ($e->getTrace() as $frame) {
+            $frames[] = [
+                'file'     => $frame['file'] ?? null,
+                'line'     => $frame['line'] ?? null,
+                'function' => $frame['function'] ?? null,
+                'class'    => $frame['class'] ?? null,
+                'type'     => $frame['type'] ?? null,
+            ];
+
+            if (count($frames) >= 30) {
+                break;
+            }
+        }
+
+        return $frames;
     }
 
     /** Stel host + poort handmatig in (overschrijft env). */
@@ -149,7 +200,7 @@ class Lens
         }
 
         $payload['time'] = $payload['time'] ?? (int) round(microtime(true) * 1000);
-        $payload['meta'] = ['client' => 'php', 'version' => '1.0.0'];
+        $payload['meta'] = ['client' => 'php', 'version' => '1.0.1'];
 
         $json = json_encode($payload, JSON_PARTIAL_OUTPUT_ON_ERROR | JSON_UNESCAPED_UNICODE);
         if ($json === false) {

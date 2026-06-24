@@ -19,11 +19,17 @@ lens(['order' => $order, 'totaal' => $bedrag]);
 
 ## Installatie
 
+Installeer als **dev-dependency** (het is een debug-tool, net als `dd()`):
+
 ```bash
-composer require ultimatelemon/lens
+composer require ultimatelemon/lens --dev
 ```
 
 In Laravel wordt de package automatisch ontdekt (auto-discovery). Verder niets nodig.
+
+> **Let op:** omdat dit een dev-dependency is, bestaat de `lens()`-helper in productie niet
+> (`composer install --no-dev`). Laat dus geen `lens()`-aanroepen achter in code die naar
+> productie gaat — behandel het als `dd()`. Zie [Voorkom commits met lens()](#voorkom-commits-met-lens).
 
 ## Gebruik
 
@@ -44,6 +50,65 @@ lens($order)->label('Nieuwe order')->color('green');
 ```
 
 Beschikbare kleuren: `red`, `green`, `blue`, `orange`, `purple`, `gray`.
+
+## Exceptions
+
+Exceptions verschijnen als rood item met uitklapbare stacktrace:
+
+```php
+lens($exception);                          // herkent een Throwable automatisch
+\UltimateLemon\Lens\Lens::exception($e);   // expliciet
+```
+
+In Laravel worden gerapporteerde exceptions **automatisch** naar Lens gestuurd. Uitschakelen kan via:
+
+```env
+LENS_CATCH_EXCEPTIONS=false
+```
+
+## Artisan-commands
+
+```bash
+php artisan lens:test           # stuurt een testpayload naar de Lens-app
+php artisan lens:check          # scant op achtergebleven lens()-aanroepen
+php artisan lens:check --staged # alleen de staged bestanden (voor pre-commit)
+php artisan lens:install-hooks  # installeert een git pre-commit hook
+```
+
+## Voorkom commits met lens()
+
+`lens:check` zoekt naar achtergebleven `lens()`-aanroepen en geeft exit-code 1 als die er zijn
+(handig in CI). Een git pre-commit hook blokkeert dan automatisch elke commit met een `lens()`-aanroep.
+
+### Automatisch (aanbevolen)
+
+De package installeert de pre-commit hook **vanzelf** bij `composer install`/`update` — maar
+Composer vereist hiervoor eenmalig je toestemming. Zet dit in de `composer.json` van je project:
+
+```json
+"config": {
+  "allow-plugins": {
+    "ultimatelemon/lens": true
+  }
+}
+```
+
+De hook wordt alleen geïnstalleerd:
+- in **dev** (nooit bij `composer install --no-dev` / productie / CI-deploy);
+- in een **Laravel-project** (er moet een `artisan`-bestand zijn);
+- als er een `.git`-map is en er nog **geen** pre-commit hook bestaat (een bestaande hook wordt nooit overschreven).
+
+### Handmatig
+
+```bash
+php artisan lens:install-hooks
+```
+
+Bestaat er al een pre-commit hook, gebruik dan `--force` of voeg zelf deze regel toe:
+
+```sh
+php artisan lens:check --staged || exit 1
+```
 
 ## Configuratie
 
