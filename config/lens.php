@@ -19,4 +19,19 @@ return [
      */
     'catch_exceptions' => env('LENS_CATCH_EXCEPTIONS', true),
 
+    /*
+     | Stream every database query to Lens. Handy while debugging, noisy if
+     | left on permanently — toggle per environment.
+     */
+    'queries' => env('LENS_QUERIES', false),
+
+    /*
+     | Extra Laravel streams. Toggle per environment — handy while debugging,
+     | noisy if left on permanently.
+     */
+    'mails'  => env('LENS_MAILS', false),
+    'jobs'   => env('LENS_JOBS', false),
+    'events' => env('LENS_EVENTS', false),
+    'models' => env('LENS_MODELS', false),
+
 ];

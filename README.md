@@ -66,6 +66,38 @@ In Laravel, reported exceptions are sent to Lens **automatically**. Disable it w
 LENS_CATCH_EXCEPTIONS=false
 ```
 
+## Laravel streams
+
+Stream Laravel internals straight to Lens. Toggle per environment in your `.env`:
+
+```env
+LENS_QUERIES=true   # every DB query (SQL + bindings + time)
+LENS_MAILS=true     # outgoing mails, with a rendered HTML preview
+LENS_JOBS=true      # queue jobs (processing / processed / failed)
+LENS_EVENTS=true    # application events (framework noise filtered out)
+LENS_MODELS=true    # Eloquent created / updated / deleted / restored
+```
+
+Or enable them in code:
+
+```php
+\UltimateLemon\Lens\Lens::showQueries();
+\UltimateLemon\Lens\Lens::showMails();   // shows the email's HTML in a sandboxed preview
+\UltimateLemon\Lens\Lens::showJobs();
+\UltimateLemon\Lens\Lens::showEvents();
+\UltimateLemon\Lens\Lens::showModels();
+```
+
+## Pause execution
+
+Pause your code until you click **Continue** or **Stop** in the Lens app:
+
+```php
+\UltimateLemon\Lens\Lens::pause();
+```
+
+Returns immediately if Lens is disabled or the app is not running, so it never hangs your app.
+
 ## Artisan commands
 
 ```bash

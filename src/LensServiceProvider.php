@@ -30,6 +30,14 @@ class LensServiceProvider extends ServiceProvider
             $this->registerExceptionHandler();
         }
 
+        if ($enabled) {
+            if ($config['queries'] ?? false) Lens::showQueries();
+            if ($config['mails'] ?? false) Lens::showMails();
+            if ($config['jobs'] ?? false) Lens::showJobs();
+            if ($config['events'] ?? false) Lens::showEvents();
+            if ($config['models'] ?? false) Lens::showModels();
+        }
+
         if ($this->app->runningInConsole()) {
             $this->commands([
                 Commands\LensCheckCommand::class,
