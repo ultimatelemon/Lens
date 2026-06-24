@@ -36,6 +36,7 @@ class LensServiceProvider extends ServiceProvider
             if ($config['jobs'] ?? false) Lens::showJobs();
             if ($config['events'] ?? false) Lens::showEvents();
             if ($config['models'] ?? false) Lens::showModels();
+            if ($config['notifications'] ?? false) Lens::showNotifications();
         }
 
         if ($this->app->runningInConsole()) {

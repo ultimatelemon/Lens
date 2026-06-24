@@ -241,6 +241,25 @@ class Lens
         });
     }
 
+    /** Send notifications (any channel) to Lens (Laravel only). */
+    public static function showNotifications(): void
+    {
+        static::hookOnce('notifications', static function (): void {
+            \Illuminate\Support\Facades\Event::listen(\Illuminate\Notifications\Events\NotificationSent::class, static function ($event): void {
+                $notifiable = $event->notifiable;
+                $who = is_object($notifiable)
+                    ? get_class($notifiable) . (isset($notifiable->id) ? '#' . $notifiable->id : '')
+                    : (string) $notifiable;
+
+                static::logPayload([[
+                    'notification' => get_class($event->notification),
+                    'channel'      => $event->channel,
+                    'notifiable'   => $who,
+                ]], 'Notification', 'purple');
+            });
+        });
+    }
+
     protected static function hookOnce(string $key, callable $register): void
     {
         if (isset(static::$hooked[$key]) || ! class_exists(\Illuminate\Support\Facades\Event::class)) {

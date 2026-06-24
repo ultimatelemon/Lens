@@ -33,5 +33,6 @@ return [
     'jobs'   => env('LENS_JOBS', false),
     'events' => env('LENS_EVENTS', false),
     'models' => env('LENS_MODELS', false),
+    'notifications' => env('LENS_NOTIFICATIONS', false),
 
 ];
