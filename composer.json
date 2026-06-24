@@ -1,0 +1,44 @@
+{
+  "name": "ultimatelemon/lens",
+  "description": "Lens - stuur debug-payloads naar de Lens desktop-app",
+  "type": "library",
+  "license": "MIT",
+  "keywords": ["debug", "debugging", "dump", "laravel", "lens", "developer-tools"],
+  "authors": [
+    {
+      "name": "Kevin Terpstra",
+      "email": "kevin@uphillmarketing.nl"
+    }
+  ],
+  "require": {
+    "php": ">=8.0",
+    "ext-curl": "*",
+    "ext-json": "*"
+  },
+  "require-dev": {
+    "illuminate/support": "^10.0 || ^11.0 || ^12.0"
+  },
+  "suggest": {
+    "illuminate/support": "Voor automatische Laravel-integratie (service provider + config)"
+  },
+  "autoload": {
+    "psr-4": {
+      "UltimateLemon\\Lens\\": "src/"
+    },
+    "files": [
+      "src/helpers.php"
+    ]
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "UltimateLemon\\Lens\\LensServiceProvider"
+      ]
+    }
+  },
+  "minimum-stability": "stable",
+  "prefer-stable": true,
+  "config": {
+    "sort-packages": true
+  }
+}
