@@ -57,8 +57,8 @@ class LensPlugin implements PluginInterface, EventSubscriberInterface
 
             // Never clobber a foreign pre-commit hook.
             $event->getIO()->writeError(
-                '<comment>Lens: bestaande pre-commit hook gevonden, niet aangepast. '
-                . 'Voeg zelf toe: php artisan lens:check --staged</comment>'
+                '<comment>Lens: existing pre-commit hook found, left untouched. '
+                . 'Add this yourself: php artisan lens:check --staged</comment>'
             );
             return;
         }
@@ -69,7 +69,7 @@ class LensPlugin implements PluginInterface, EventSubscriberInterface
 
         if (@file_put_contents($hookPath, $script) !== false) {
             @chmod($hookPath, 0755);
-            $event->getIO()->write('<info>Lens: pre-commit hook geïnstalleerd (.git/hooks/pre-commit)</info>');
+            $event->getIO()->write('<info>Lens: installed pre-commit hook (.git/hooks/pre-commit)</info>');
         }
     }
 }

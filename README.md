@@ -1,89 +1,89 @@
-# Lens (PHP-client)
+# Lens (PHP client)
 
-Stuur debug-payloads vanuit je PHP- of Laravel-project live naar de **Lens desktop-app**.
-In plaats van `dd()` of `var_dump()` je response te laten vervuilen, stuur je met `lens(...)`
-netjes weergegeven data naar een apart venster — met syntax-highlighting, labels, kleuren en
-de regel waar het vandaan komt.
+Send debug payloads from your PHP or Laravel project straight to the **Lens desktop app**.
+Instead of polluting your response with `dd()` or `var_dump()`, use `lens(...)` to send neatly
+rendered data to a separate window — with syntax highlighting, labels, colors and the line it
+came from.
 
 ```php
-lens('hallo');
-lens($gebruiker)->color('green')->label('Ingelogde user');
-lens(['order' => $order, 'totaal' => $bedrag]);
+lens('hello');
+lens($user)->color('green')->label('Signed-in user');
+lens(['order' => $order, 'total' => $amount]);
 ```
 
-## Vereisten
+## Requirements
 
-- PHP 8.0 of hoger (met `ext-curl` en `ext-json`)
-- De **Lens desktop-app** moet draaien — die ontvangt en toont de payloads.
-  (Aparte applicatie; standaard luistert die op `127.0.0.1:23600`.)
+- PHP 8.0 or higher (with `ext-curl` and `ext-json`)
+- The **Lens desktop app** must be running — it receives and displays the payloads.
+  (Separate application; listens on `127.0.0.1:23600` by default.)
 
-## Installatie
+## Installation
 
-Installeer als **dev-dependency** (het is een debug-tool, net als `dd()`):
+Install as a **dev dependency** (it's a debugging tool, just like `dd()`):
 
 ```bash
 composer require ultimatelemon/lens --dev
 ```
 
-In Laravel wordt de package automatisch ontdekt (auto-discovery). Verder niets nodig.
+In Laravel the package is auto-discovered. Nothing else to configure.
 
-> **Let op:** omdat dit een dev-dependency is, bestaat de `lens()`-helper in productie niet
-> (`composer install --no-dev`). Laat dus geen `lens()`-aanroepen achter in code die naar
-> productie gaat — behandel het als `dd()`. Zie [Voorkom commits met lens()](#voorkom-commits-met-lens).
+> **Note:** because this is a dev dependency, the `lens()` helper does not exist in production
+> (`composer install --no-dev`). So don't leave `lens()` calls in code that ships to production —
+> treat it like `dd()`. See [Prevent commits with lens()](#prevent-commits-with-lens).
 
-## Gebruik
+## Usage
 
-De globale helper `lens()` is overal beschikbaar:
+The global `lens()` helper is available everywhere:
 
 ```php
-// Eenvoudige waarde
-lens('checkpoint bereikt');
+// A single value
+lens('checkpoint reached');
 
-// Meerdere waarden in één keer
-lens($request->all(), $user, $totaal);
+// Multiple values at once
+lens($request->all(), $user, $total);
 
-// Chainen: label en kleur
-lens($order)->label('Nieuwe order')->color('green');
+// Chaining: label and color
+lens($order)->label('New order')->color('green');
 
-// Scherm leegmaken
+// Clear the screen
 \UltimateLemon\Lens\Lens::clear();
 ```
 
-Beschikbare kleuren: `red`, `green`, `blue`, `orange`, `purple`, `gray`.
+Available colors: `red`, `green`, `blue`, `orange`, `purple`, `gray`.
 
 ## Exceptions
 
-Exceptions verschijnen als rood item met uitklapbare stacktrace:
+Exceptions show up as a red item with an expandable stack trace:
 
 ```php
-lens($exception);                          // herkent een Throwable automatisch
-\UltimateLemon\Lens\Lens::exception($e);   // expliciet
+lens($exception);                          // a Throwable is detected automatically
+\UltimateLemon\Lens\Lens::exception($e);   // explicit
 ```
 
-In Laravel worden gerapporteerde exceptions **automatisch** naar Lens gestuurd. Uitschakelen kan via:
+In Laravel, reported exceptions are sent to Lens **automatically**. Disable it with:
 
 ```env
 LENS_CATCH_EXCEPTIONS=false
 ```
 
-## Artisan-commands
+## Artisan commands
 
 ```bash
-php artisan lens:test           # stuurt een testpayload naar de Lens-app
-php artisan lens:check          # scant op achtergebleven lens()-aanroepen
-php artisan lens:check --staged # alleen de staged bestanden (voor pre-commit)
-php artisan lens:install-hooks  # installeert een git pre-commit hook
+php artisan lens:test           # send a test payload to the Lens app
+php artisan lens:check          # scan for leftover lens() calls
+php artisan lens:check --staged # only staged files (for pre-commit)
+php artisan lens:install-hooks  # install a git pre-commit hook
 ```
 
-## Voorkom commits met lens()
+## Prevent commits with lens()
 
-`lens:check` zoekt naar achtergebleven `lens()`-aanroepen en geeft exit-code 1 als die er zijn
-(handig in CI). Een git pre-commit hook blokkeert dan automatisch elke commit met een `lens()`-aanroep.
+`lens:check` scans for leftover `lens()` calls and returns exit code 1 when it finds any
+(useful in CI). A git pre-commit hook then automatically blocks any commit containing a `lens()` call.
 
-### Automatisch (aanbevolen)
+### Automatic (recommended)
 
-De package installeert de pre-commit hook **vanzelf** bij `composer install`/`update` — maar
-Composer vereist hiervoor eenmalig je toestemming. Zet dit in de `composer.json` van je project:
+The package installs the pre-commit hook **by itself** on `composer install`/`update` — but Composer
+requires your one-time consent for this. Add this to your project's `composer.json`:
 
 ```json
 "config": {
@@ -93,34 +93,34 @@ Composer vereist hiervoor eenmalig je toestemming. Zet dit in de `composer.json`
 }
 ```
 
-De hook wordt alleen geïnstalleerd:
-- in **dev** (nooit bij `composer install --no-dev` / productie / CI-deploy);
-- in een **Laravel-project** (er moet een `artisan`-bestand zijn);
-- als er een `.git`-map is en er nog **geen** pre-commit hook bestaat (een bestaande hook wordt nooit overschreven).
+The hook is only installed:
+- in **dev** (never on `composer install --no-dev` / production / CI deploy);
+- in a **Laravel project** (an `artisan` file must be present);
+- when there is a `.git` directory and **no** pre-commit hook exists yet (an existing hook is never overwritten).
 
-### Handmatig
+### Manual
 
 ```bash
 php artisan lens:install-hooks
 ```
 
-Bestaat er al een pre-commit hook, gebruik dan `--force` of voeg zelf deze regel toe:
+If a pre-commit hook already exists, use `--force` or add this line yourself:
 
 ```sh
 php artisan lens:check --staged || exit 1
 ```
 
-## Configuratie
+## Configuration
 
 ### Laravel
 
-Publiceer eventueel het config-bestand:
+Optionally publish the config file:
 
 ```bash
 php artisan vendor:publish --tag=lens-config
 ```
 
-Of stuur alles via je `.env`:
+Or configure everything through your `.env`:
 
 ```env
 LENS_ENABLED=true
@@ -128,33 +128,33 @@ LENS_HOST=127.0.0.1
 LENS_PORT=23600
 ```
 
-### Productie uitschakelen
+### Disable in production
 
-Zet in productie simpelweg:
+Simply set:
 
 ```env
 LENS_ENABLED=false
 ```
 
-Dan worden alle `lens()`-aanroepen no-ops — geen netwerkverkeer, geen overhead die je app raakt.
+All `lens()` calls then become no-ops — no network traffic, no overhead touching your app.
 
-### Zonder Laravel (plain PHP)
+### Without Laravel (plain PHP)
 
 ```php
 require __DIR__ . '/vendor/autoload.php';
 
 use UltimateLemon\Lens\Lens;
 
-Lens::configure('127.0.0.1', 23600); // optioneel; dit zijn de defaults
-lens('werkt ook zonder framework');
+Lens::configure('127.0.0.1', 23600); // optional; these are the defaults
+lens('works without a framework too');
 ```
 
-## Hoe het werkt
+## How it works
 
-`lens()` bouwt een JSON-payload en doet een korte HTTP POST naar de Lens desktop-app
-(`http://LENS_HOST:LENS_PORT`). Mislukt dat (app niet open, time-out) dan wordt de fout
-stil genegeerd — debuggen mag je applicatie nooit breken.
+`lens()` builds a JSON payload and makes a short HTTP POST to the Lens desktop app
+(`http://LENS_HOST:LENS_PORT`). If that fails (app not open, timeout) the error is silently
+ignored — debugging should never break your application.
 
-## Licentie
+## License
 
-MIT — zie [LICENSE](LICENSE).
+MIT — see [LICENSE](LICENSE).
